@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const dns = require('dns').promises;
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -39,6 +40,7 @@ app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
   try {
     if (!url) throw 'URL DONT EXIST';
+    new URL(url);
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
       res.json(original_url_exist(url));
@@ -49,13 +51,14 @@ app.post('/api/shorturl', async function (req, res) {
       res.json({ original_url: url, short_url: `${code}` });
     }
   } catch (error) {
-    throw error;
+    res.status(400).send({ error: 'invalid url' });
   }
 });
 
 app.get('/api/shorturl/:short_url', async function (req, res) {
   console.log(await shorturlExist(req.params.short_url));
-  res.json(await shorturlExist(req.params.short_url));
+  const resURL = await shorturlExist(req.params.short_url);
+  res.redirect(resURL.original_url);
 });
 
 app.listen(port, function () {
