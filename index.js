@@ -35,12 +35,29 @@ const original_url_exist = (original_url) => {
   return result;
 };
 
+const isValidUrl = async (url) => {
+  // 1. Validar formato
+  try {
+    new URL(url);
+  } catch {
+    return false;
+  }
+
+  // 2. Validar que responda
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch {
+    return false;
+  }
+};
+
 // Your first API endpoint
 app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
   try {
     if (!url) throw 'URL DONT EXIST';
-    const isValidUrl = await fetch(url);
+    if (!isValidUrl(url)) throw 'error';
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
       res.json(original_url_exist(url));
