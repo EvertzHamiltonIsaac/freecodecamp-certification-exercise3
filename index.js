@@ -42,13 +42,14 @@ const isValidUrl = async (url) => {
   } catch {
     return false;
   }
+};
 
-  // 2. Validar que responda
+const ipfinder = async (HOST) => {
   try {
-    const response = await fetch(url, { method: 'HEAD' });
-    return response.ok;
-  } catch {
-    return false;
+    const adresses = await dns.resolve4(HOST);
+    return adresses[0];
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -57,7 +58,8 @@ app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
   try {
     if (!url) throw 'URL DONT EXIST';
-    if (!isValidUrl(url)) throw 'error';
+    console.log();
+    console.log(await ipfinder(url.split('/')[2]));
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
       res.json(original_url_exist(url));
