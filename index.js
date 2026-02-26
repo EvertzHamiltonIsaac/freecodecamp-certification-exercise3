@@ -40,7 +40,7 @@ app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
   try {
     if (!url) throw 'URL DONT EXIST';
-    new URL(url);
+    const isValidUrl = await fetch(url);
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
       res.json(original_url_exist(url));
