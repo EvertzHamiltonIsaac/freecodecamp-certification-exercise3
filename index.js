@@ -57,8 +57,6 @@ const ipfinder = async (HOST) => {
 app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
   try {
-    if (!url) throw 'URL DONT EXIST';
-    console.log();
     console.log(await ipfinder(url.split('/')[2]));
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
@@ -70,7 +68,7 @@ app.post('/api/shorturl', async function (req, res) {
       res.json({ original_url: url, short_url: `${code}` });
     }
   } catch (error) {
-    res.status(400).send({ error: 'invalid url' });
+    res.status(400).send({ error: 'Invalid URL' });
   }
 });
 
