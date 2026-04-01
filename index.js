@@ -38,26 +38,39 @@ const original_url_exist = (original_url) => {
 const isValidUrl = async (url) => {
   // 1. Validar formato
   try {
-    new URL(url);
-  } catch {
-    return false;
+    if (url.includes('https://') || url.includes('http://')) {
+      if (url.includes('.com/')) {
+        return 'Is a Valid URL';
+      } else {
+        throw 'ERR_INVALID_URL';
+      }
+    }
+  } catch (err) {
+    return err;
   }
 };
 
 const ipfinder = async (HOST) => {
+  let result = '';
   try {
-    const adresses = await dns.resolve4(HOST);
-    return adresses[0];
+    const adresses = await dns.lookup(HOST);
+    result = adresses;
   } catch (error) {
-    throw error;
+    result = error.code;
   }
+  return result;
 };
 
 // Your first API endpoint
 app.post('/api/shorturl', async function (req, res) {
   const { url } = req.body;
+  const isValidURL = await isValidUrl(url);
+  const ip = await ipfinder(url.split('/')[2]);
+
   try {
-    console.log(await ipfinder(url.split('/')[2]));
+    if (isValidURL === 'ERR_INVALID_URL') throw '';
+    if (ip === 'ENOTFOUND') throw '';
+
     if (original_url_exist(url)) {
       console.log(original_url_exist(url));
       res.json(original_url_exist(url));
@@ -68,7 +81,11 @@ app.post('/api/shorturl', async function (req, res) {
       res.json({ original_url: url, short_url: `${code}` });
     }
   } catch (error) {
-    res.status(400).send({ error: 'invalid url' });
+    if (isValidURL === 'ERR_INVALID_URL') {
+      return res.status(400).send({ error: 'invalid url' });
+    } else if (ip === 'ENOTFOUND') {
+      return res.status(400).send({ error: 'invalid hostname' });
+    }
   }
 });
 
