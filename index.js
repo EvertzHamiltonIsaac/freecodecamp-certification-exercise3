@@ -82,9 +82,9 @@ app.post('/api/shorturl', async function (req, res) {
     }
   } catch (error) {
     if (isValidURL === 'ERR_INVALID_URL') {
-      return res.status(400).send({ error: 'invalid url' });
+      return res.send({ error: 'invalid url' });
     } else if (ip === 'ENOTFOUND') {
-      return res.status(400).send({ error: 'invalid hostname' });
+      return res.send({ error: 'invalid hostname' });
     }
   }
 });
